@@ -1,12 +1,16 @@
-import { BarChart3, Info } from "lucide-react";
+import { useState } from "react";
+import { BarChart3, Info, MessageSquare } from "lucide-react";
 import { WebsiteWidget } from "@/components/WebsiteWidget";
 import { WidgetSelector } from "@/components/WidgetSelector";
+import { PerplexityPanel } from "@/components/PerplexityPanel";
 import { useWidgets } from "@/hooks/useWidgets";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const { widgets, addWidget, removeWidget, addCustomWidget } = useWidgets();
+  const [perplexityOpen, setPerplexityOpen] = useState(false);
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -24,7 +28,17 @@ const Index = () => {
                 </p>
               </div>
             </div>
-            <WidgetSelector onAddWidget={addWidget} onAddCustomWidget={addCustomWidget} />
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPerplexityOpen(true)}
+              >
+                <MessageSquare className="h-4 w-4 mr-2" />
+                Perplexity AI
+              </Button>
+              <WidgetSelector onAddWidget={addWidget} onAddCustomWidget={addCustomWidget} />
+            </div>
           </div>
         </div>
       </header>
@@ -77,6 +91,8 @@ const Index = () => {
           </p>
         </div>
       </footer>
+
+      <PerplexityPanel open={perplexityOpen} onOpenChange={setPerplexityOpen} />
     </div>
   );
 };
