@@ -1,11 +1,16 @@
 import { useState } from 'react';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Settings, Send, Trash2, Loader2 } from 'lucide-react';
+import { Settings, Send, Trash2, Loader2, X } from 'lucide-react';
 import { usePerplexity } from '@/hooks/usePerplexity';
 import { cn } from '@/lib/utils';
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarHeader,
+  SidebarFooter,
+} from '@/components/ui/sidebar';
 
 interface PerplexityPanelProps {
   open: boolean;
@@ -40,34 +45,43 @@ export const PerplexityPanel = ({ open, onOpenChange }: PerplexityPanelProps) =>
     }
   };
 
-  return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full sm:w-[500px] p-0 flex flex-col">
-        <SheetHeader className="px-6 py-4 border-b">
-          <div className="flex items-center justify-between">
-            <SheetTitle>Perplexity AI</SheetTitle>
-            <div className="flex gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setShowSettings(!showSettings)}
-              >
-                <Settings className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={clearHistory}
-                disabled={messages.length === 0}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </SheetHeader>
+  if (!open) return null;
 
-        {showSettings ? (
-          <div className="p-6 space-y-4">
+  return (
+    <Sidebar className="w-[400px] border-l" collapsible="none">
+      <SidebarHeader className="border-b p-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold">Perplexity AI</h2>
+          <div className="flex gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowSettings(!showSettings)}
+            >
+              <Settings className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={clearHistory}
+              disabled={messages.length === 0}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onOpenChange(false)}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </SidebarHeader>
+
+      {showSettings ? (
+        <SidebarContent className="p-4">
+          <div className="space-y-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">Perplexity API Key</label>
               <Input
@@ -84,9 +98,11 @@ export const PerplexityPanel = ({ open, onOpenChange }: PerplexityPanelProps) =>
               저장
             </Button>
           </div>
-        ) : (
-          <>
-            <ScrollArea className="flex-1 p-6">
+        </SidebarContent>
+      ) : (
+        <>
+          <SidebarContent>
+            <ScrollArea className="flex-1 p-4">
               {messages.length === 0 ? (
                 <div className="flex items-center justify-center h-full text-muted-foreground">
                   <p>대화를 시작해보세요</p>
@@ -123,33 +139,33 @@ export const PerplexityPanel = ({ open, onOpenChange }: PerplexityPanelProps) =>
                 </div>
               )}
             </ScrollArea>
+          </SidebarContent>
 
-            <div className="p-4 border-t">
-              {!apiKey && (
-                <div className="mb-2 text-xs text-muted-foreground text-center">
-                  설정에서 API 키를 먼저 입력해주세요
-                </div>
-              )}
-              <div className="flex gap-2">
-                <Input
-                  placeholder="메시지를 입력하세요..."
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  disabled={isLoading || !apiKey}
-                />
-                <Button
-                  onClick={handleSend}
-                  disabled={isLoading || !input.trim() || !apiKey}
-                  size="icon"
-                >
-                  <Send className="h-4 w-4" />
-                </Button>
+          <SidebarFooter className="p-4 border-t">
+            {!apiKey && (
+              <div className="mb-2 text-xs text-muted-foreground text-center">
+                설정에서 API 키를 먼저 입력해주세요
               </div>
+            )}
+            <div className="flex gap-2">
+              <Input
+                placeholder="메시지를 입력하세요..."
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyPress={handleKeyPress}
+                disabled={isLoading || !apiKey}
+              />
+              <Button
+                onClick={handleSend}
+                disabled={isLoading || !input.trim() || !apiKey}
+                size="icon"
+              >
+                <Send className="h-4 w-4" />
+              </Button>
             </div>
-          </>
-        )}
-      </SheetContent>
-    </Sheet>
+          </SidebarFooter>
+        </>
+      )}
+    </Sidebar>
   );
 };

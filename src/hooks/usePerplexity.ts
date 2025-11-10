@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
+import { streamPerplexityResponse } from '@/utils/perplexity-api';
 
 export interface Message {
   id: string;
@@ -60,43 +61,52 @@ export const usePerplexity = () => {
     saveMessages(updatedMessages);
     setIsLoading(true);
 
+    // 임시 응답 메시지 생성
+    const tempAssistantMessage: Message = {
+      id: (Date.now() + 1).toString(),
+      role: 'assistant',
+      content: '',
+      timestamp: Date.now(),
+    };
+
+    const messagesWithTemp = [...updatedMessages, tempAssistantMessage];
+    setMessages(messagesWithTemp);
+
     try {
-      const response = await fetch('https://api.perplexity.ai/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
+      await streamPerplexityResponse({
+        apiKey,
+        messages: updatedMessages.map(m => ({
+          role: m.role,
+          content: m.content,
+        })),
+        onUpdate: (text) => {
+          // 실시간 업데이트
+          const updated = [...updatedMessages, {
+            ...tempAssistantMessage,
+            content: text,
+          }];
+          setMessages(updated);
         },
-        body: JSON.stringify({
-          model: 'llama-3.1-sonar-small-128k-online',
-          messages: updatedMessages.map(m => ({
-            role: m.role,
-            content: m.content,
-          })),
-          temperature: 0.2,
-          top_p: 0.9,
-          max_tokens: 1000,
-        }),
+        onComplete: () => {
+          // 완료 시 저장
+          const finalMessages = [...updatedMessages, {
+            ...tempAssistantMessage,
+            content: messages[messages.length - 1]?.content || '',
+          }];
+          saveMessages(finalMessages);
+          setIsLoading(false);
+        },
+        onError: (error) => {
+          console.error('Perplexity API 오류:', error);
+          toast.error('메시지 전송에 실패했습니다');
+          saveMessages(messages);
+          setIsLoading(false);
+        },
       });
-
-      if (!response.ok) {
-        throw new Error(`API 오류: ${response.status}`);
-      }
-
-      const data = await response.json();
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: data.choices[0].message.content,
-        timestamp: Date.now(),
-      };
-
-      saveMessages([...updatedMessages, assistantMessage]);
     } catch (error) {
       console.error('Perplexity API 오류:', error);
       toast.error('메시지 전송에 실패했습니다');
       saveMessages(messages);
-    } finally {
       setIsLoading(false);
     }
   };
