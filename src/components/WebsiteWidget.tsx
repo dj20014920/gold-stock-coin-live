@@ -69,6 +69,7 @@ export const WebsiteWidget = ({ widgetId, name, url, icon, category, onRemove }:
           className="h-full w-full border-0"
           title={name}
           sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+          style={{ colorScheme: 'normal' }}
         />
       </div>
     </Card>

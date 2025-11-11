@@ -4,7 +4,7 @@ import { WebsiteWidget } from "@/components/WebsiteWidget";
 import { WidgetSelector } from "@/components/WidgetSelector";
 import { PerplexityPanel } from "@/components/PerplexityPanel";
 import { useWidgets } from "@/hooks/useWidgets";
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
+
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -55,42 +55,31 @@ const Index = () => {
                     <p className="font-semibold">시작하기</p>
                     <p className="mt-1 text-sm text-muted-foreground">
                       "위젯 추가" 버튼을 눌러 차트, 거래소, 증권사를 추가해보세요.
-                      <br />
-                      패널 사이의 구분선을 드래그하여 크기를 조절할 수 있습니다.
                     </p>
                   </AlertDescription>
                 </Alert>
               </div>
             ) : (
-              <ResizablePanelGroup
-                direction="horizontal"
-                className="min-h-[calc(100vh-180px)] gap-4"
-              >
-                {widgets.map((widget, index) => (
-                  <div key={widget.widgetId} className="contents">
-                    <ResizablePanel defaultSize={100 / widgets.length} minSize={20}>
-                      <WebsiteWidget
-                        widgetId={widget.widgetId}
-                        name={widget.name}
-                        url={widget.url}
-                        icon={widget.icon}
-                        category={widget.category}
-                        onRemove={removeWidget}
-                      />
-                    </ResizablePanel>
-                    {index < widgets.length - 1 && (
-                      <ResizableHandle withHandle className="mx-2" />
-                    )}
-                  </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 min-h-[calc(100vh-180px)]">
+                {widgets.map((widget) => (
+                  <WebsiteWidget
+                    key={widget.widgetId}
+                    widgetId={widget.widgetId}
+                    name={widget.name}
+                    url={widget.url}
+                    icon={widget.icon}
+                    category={widget.category}
+                    onRemove={removeWidget}
+                  />
                 ))}
-              </ResizablePanelGroup>
+              </div>
             )}
           </main>
 
           <footer className="border-t border-border bg-card/30 py-4">
             <div className="container mx-auto px-4 text-center">
               <p className="text-sm text-muted-foreground">
-                드래그하여 패널 크기를 조절할 수 있습니다 | 레이아웃은 자동으로 저장됩니다
+                위젯은 그리드 형태로 자동 배치됩니다 | 레이아웃은 자동으로 저장됩니다
               </p>
             </div>
           </footer>
