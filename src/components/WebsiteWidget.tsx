@@ -1,6 +1,7 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { X, ExternalLink } from "lucide-react";
+import { X, ExternalLink, AlertCircle } from "lucide-react";
 import * as LucideIcons from "lucide-react";
 
 interface WebsiteWidgetProps {
@@ -29,9 +30,14 @@ const categoryIconBg = {
 };
 
 export const WebsiteWidget = ({ widgetId, name, url, icon, category, onRemove }: WebsiteWidgetProps) => {
+  const [iframeError, setIframeError] = useState(false);
   const IconComponent = (LucideIcons as any)[icon] || LucideIcons.Globe;
   const colorClass = categoryColors[category as keyof typeof categoryColors] || categoryColors.custom;
   const iconBgClass = categoryIconBg[category as keyof typeof categoryIconBg] || categoryIconBg.custom;
+
+  const handleIframeError = () => {
+    setIframeError(true);
+  };
 
   return (
     <Card className={`flex h-full flex-col overflow-hidden border-2 shadow-lg ${colorClass}`}>
@@ -63,14 +69,41 @@ export const WebsiteWidget = ({ widgetId, name, url, icon, category, onRemove }:
           </Button>
         </div>
       </div>
-      <div className="flex-1 bg-card/30">
-        <iframe
-          src={url}
-          className="h-full w-full border-0"
-          title={name}
-          sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
-          style={{ colorScheme: 'normal' }}
-        />
+      <div className="relative flex-1 bg-card/30">
+        {iframeError ? (
+          <div className="flex h-full flex-col items-center justify-center gap-4 p-6 text-center">
+            <div className="rounded-full bg-destructive/10 p-4">
+              <AlertCircle className="h-8 w-8 text-destructive" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="font-semibold text-foreground">사이트 로드 실패</h3>
+              <p className="text-sm text-muted-foreground">
+                {name}에서 보안 정책으로 인해 임베딩을 차단했습니다.
+              </p>
+            </div>
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => window.open(url, "_blank")}
+              className="gap-2"
+            >
+              <ExternalLink className="h-4 w-4" />
+              새 탭에서 열기
+            </Button>
+          </div>
+        ) : (
+          <iframe
+            src={url}
+            className="h-full w-full border-0"
+            title={name}
+            sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+            onError={handleIframeError}
+            style={{ 
+              colorScheme: 'light',
+              backgroundColor: '#ffffff'
+            }}
+          />
+        )}
       </div>
     </Card>
   );
