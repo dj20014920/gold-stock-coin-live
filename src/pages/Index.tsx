@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { BarChart3, Info, MessageSquare } from "lucide-react";
 import { WebsiteWidget } from "@/components/WebsiteWidget";
+import { TradingViewWidget } from "@/components/TradingViewWidget";
 import { WidgetSelector } from "@/components/WidgetSelector";
 import { PerplexityPanel } from "@/components/PerplexityPanel";
 import { useWidgets } from "@/hooks/useWidgets";
@@ -73,17 +74,36 @@ const Index = () => {
               </div>
             ) : (
               <div className={`grid ${getGridLayout(widgets.length)} gap-4 min-h-[calc(100vh-180px)]`}>
-                {widgets.map((widget) => (
-                  <WebsiteWidget
-                    key={widget.widgetId}
-                    widgetId={widget.widgetId}
-                    name={widget.name}
-                    url={widget.url}
-                    icon={widget.icon}
-                    category={widget.category}
-                    onRemove={removeWidget}
-                  />
-                ))}
+                {widgets.map((widget) => {
+                  // Render appropriate widget component based on type
+                  if (widget.type === "tradingview" && widget.symbol) {
+                    return (
+                      <TradingViewWidget
+                        key={widget.widgetId}
+                        widgetId={widget.widgetId}
+                        name={widget.name}
+                        symbol={widget.symbol}
+                        icon={widget.icon}
+                        category={widget.category}
+                        scriptConfig={widget.scriptConfig}
+                        onRemove={removeWidget}
+                      />
+                    );
+                  } else if (widget.url) {
+                    return (
+                      <WebsiteWidget
+                        key={widget.widgetId}
+                        widgetId={widget.widgetId}
+                        name={widget.name}
+                        url={widget.url}
+                        icon={widget.icon}
+                        category={widget.category}
+                        onRemove={removeWidget}
+                      />
+                    );
+                  }
+                  return null;
+                })}
               </div>
             )}
           </main>

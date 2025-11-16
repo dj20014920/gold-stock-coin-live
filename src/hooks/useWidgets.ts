@@ -41,6 +41,7 @@ export const useWidgets = () => {
       category: "custom",
       icon: "Globe",
       description: "사용자 정의 위젯",
+      type: "iframe",
     };
     setWidgets((prev) => [...prev, newWidget]);
   };
