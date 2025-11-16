@@ -39,6 +39,11 @@ export const WebsiteWidget = ({ widgetId, name, url, icon, category, onRemove }:
     setIframeError(true);
   };
 
+  // Iframe only supports URLs with proper embedding permissions
+  if (!url) {
+    return null;
+  }
+
   return (
     <Card className={`flex h-full flex-col overflow-hidden border-2 shadow-lg ${colorClass}`}>
       <div className="flex items-center justify-between border-b border-border bg-card/50 px-4 py-3 backdrop-blur-sm">
