@@ -173,12 +173,9 @@ export const TradingViewWidget = ({
       </div>
       <div 
         ref={containerRef} 
-        className="relative flex-1 bg-background overflow-auto"
+        className="relative flex-1 bg-background"
         style={{
-          transform: `scale(${zoom / 100})`,
-          transformOrigin: 'top left',
-          width: `${(100 / zoom) * 100}%`,
-          height: `${(100 / zoom) * 100}%`,
+          zoom: `${zoom}%`,
         }}
       />
     </Card>
