@@ -138,27 +138,18 @@ export const WebsiteWidget = ({ widgetId, name, url, icon, category, zoom = 100,
             </Button>
           </div>
         ) : (
-          <div 
-            className="h-full w-full overflow-auto"
-            style={{
-              transformOrigin: 'top left',
+          <iframe
+            src={url}
+            className="h-full w-full border-0"
+            title={name}
+            sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+            onError={handleIframeError}
+            style={{ 
+              colorScheme: 'light',
+              backgroundColor: '#ffffff',
+              zoom: `${zoom}%`,
             }}
-          >
-            <iframe
-              src={url}
-              className="border-0"
-              title={name}
-              sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
-              onError={handleIframeError}
-              style={{ 
-                colorScheme: 'light',
-                backgroundColor: '#ffffff',
-                transform: `scale(${zoom / 100})`,
-                width: `${(100 / zoom) * 100}%`,
-                height: `${(100 / zoom) * 100}%`,
-              }}
-            />
-          </div>
+          />
         )}
       </div>
     </Card>
