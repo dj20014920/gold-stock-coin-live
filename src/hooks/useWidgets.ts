@@ -16,6 +16,8 @@ export const useWidgets = () => {
     return [];
   });
 
+  const [fullscreenWidgetId, setFullscreenWidgetId] = useState<string | null>(null);
+
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(widgets));
   }, [widgets]);
@@ -55,11 +57,17 @@ export const useWidgets = () => {
     );
   };
 
+  const toggleFullscreen = (widgetId: string | null) => {
+    setFullscreenWidgetId(widgetId);
+  };
+
   return {
     widgets,
     addWidget,
     removeWidget,
     addCustomWidget,
     updateWidgetZoom,
+    fullscreenWidgetId,
+    toggleFullscreen,
   };
 };

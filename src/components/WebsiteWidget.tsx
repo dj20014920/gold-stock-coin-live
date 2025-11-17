@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
-import { X, ExternalLink, AlertCircle, ZoomIn } from "lucide-react";
+import { X, ExternalLink, AlertCircle, ZoomIn, Maximize2, Minimize2 } from "lucide-react";
 import * as LucideIcons from "lucide-react";
 
 interface WebsiteWidgetProps {
@@ -13,8 +13,10 @@ interface WebsiteWidgetProps {
   icon: string;
   category: string;
   zoom?: number;
+  isFullscreen?: boolean;
   onRemove: (widgetId: string) => void;
   onZoomChange: (widgetId: string, zoom: number) => void;
+  onToggleFullscreen: (widgetId: string | null) => void;
 }
 
 const categoryColors = {
@@ -33,7 +35,7 @@ const categoryIconBg = {
   custom: "bg-accent/10 text-accent",
 };
 
-export const WebsiteWidget = ({ widgetId, name, url, icon, category, zoom = 100, onRemove, onZoomChange }: WebsiteWidgetProps) => {
+export const WebsiteWidget = ({ widgetId, name, url, icon, category, zoom = 100, isFullscreen = false, onRemove, onZoomChange, onToggleFullscreen }: WebsiteWidgetProps) => {
   const [iframeError, setIframeError] = useState(false);
   const [zoomInput, setZoomInput] = useState(zoom.toString());
   const IconComponent = (LucideIcons as any)[icon] || LucideIcons.Globe;
@@ -76,6 +78,15 @@ export const WebsiteWidget = ({ widgetId, name, url, icon, category, zoom = 100,
             <h2 className="text-lg font-semibold text-foreground">{name}</h2>
           </div>
           <div className="flex gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-muted-foreground hover:text-foreground"
+              onClick={() => onToggleFullscreen(isFullscreen ? null : widgetId)}
+              title={isFullscreen ? "원래 크기로" : "전체화면"}
+            >
+              {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+            </Button>
             <Button
               variant="ghost"
               size="icon"
