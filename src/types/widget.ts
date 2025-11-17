@@ -15,4 +15,5 @@ export interface WidgetPreset {
 
 export interface Widget extends WidgetPreset {
   widgetId: string; // unique instance id
+  zoom?: number; // Zoom level (25-200), default 100
 }

@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { SidebarProvider } from "@/components/ui/sidebar";
 
 const Index = () => {
-  const { widgets, addWidget, removeWidget, addCustomWidget } = useWidgets();
+  const { widgets, addWidget, removeWidget, addCustomWidget, updateWidgetZoom } = useWidgets();
   const [perplexityOpen, setPerplexityOpen] = useState(false);
 
   // 위젯 개수에 따른 동적 그리드 레이아웃 계산
@@ -85,8 +85,10 @@ const Index = () => {
                         symbol={widget.symbol}
                         icon={widget.icon}
                         category={widget.category}
+                        zoom={widget.zoom || 100}
                         scriptConfig={widget.scriptConfig}
                         onRemove={removeWidget}
+                        onZoomChange={updateWidgetZoom}
                       />
                     );
                   } else if (widget.url) {
@@ -98,7 +100,9 @@ const Index = () => {
                         url={widget.url}
                         icon={widget.icon}
                         category={widget.category}
+                        zoom={widget.zoom || 100}
                         onRemove={removeWidget}
+                        onZoomChange={updateWidgetZoom}
                       />
                     );
                   }

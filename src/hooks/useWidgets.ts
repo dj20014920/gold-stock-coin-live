@@ -42,8 +42,17 @@ export const useWidgets = () => {
       icon: "Globe",
       description: "사용자 정의 위젯",
       type: "iframe",
+      zoom: 100,
     };
     setWidgets((prev) => [...prev, newWidget]);
+  };
+
+  const updateWidgetZoom = (widgetId: string, zoom: number) => {
+    // Security: Validate and clamp zoom value between 25 and 200
+    const sanitizedZoom = Math.max(25, Math.min(200, Math.floor(zoom)));
+    setWidgets((prev) =>
+      prev.map((w) => (w.widgetId === widgetId ? { ...w, zoom: sanitizedZoom } : w))
+    );
   };
 
   return {
@@ -51,5 +60,6 @@ export const useWidgets = () => {
     addWidget,
     removeWidget,
     addCustomWidget,
+    updateWidgetZoom,
   };
 };
