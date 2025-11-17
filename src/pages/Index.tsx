@@ -11,8 +11,13 @@ import { Button } from "@/components/ui/button";
 import { SidebarProvider } from "@/components/ui/sidebar";
 
 const Index = () => {
-  const { widgets, addWidget, removeWidget, addCustomWidget, updateWidgetZoom } = useWidgets();
+  const { widgets, addWidget, removeWidget, addCustomWidget, updateWidgetZoom, fullscreenWidgetId, toggleFullscreen } = useWidgets();
   const [perplexityOpen, setPerplexityOpen] = useState(false);
+
+  // 전체화면 모드일 때 해당 위젯만 필터링
+  const displayWidgets = fullscreenWidgetId 
+    ? widgets.filter(w => w.widgetId === fullscreenWidgetId)
+    : widgets;
 
   // 위젯 개수에 따른 동적 그리드 레이아웃 계산
   const getGridLayout = (count: number) => {
@@ -73,8 +78,8 @@ const Index = () => {
                 </Alert>
               </div>
             ) : (
-              <div className={`grid ${getGridLayout(widgets.length)} gap-4 min-h-[calc(100vh-180px)]`}>
-                {widgets.map((widget) => {
+              <div className={fullscreenWidgetId ? "h-[calc(100vh-180px)]" : `grid ${getGridLayout(widgets.length)} gap-4 min-h-[calc(100vh-180px)]`}>
+                {displayWidgets.map((widget) => {
                   // Render appropriate widget component based on type
                   if (widget.type === "tradingview" && widget.symbol) {
                     return (
@@ -86,9 +91,11 @@ const Index = () => {
                         icon={widget.icon}
                         category={widget.category}
                         zoom={widget.zoom || 100}
+                        isFullscreen={fullscreenWidgetId === widget.widgetId}
                         scriptConfig={widget.scriptConfig}
                         onRemove={removeWidget}
                         onZoomChange={updateWidgetZoom}
+                        onToggleFullscreen={toggleFullscreen}
                       />
                     );
                   } else if (widget.url) {
@@ -101,8 +108,10 @@ const Index = () => {
                         icon={widget.icon}
                         category={widget.category}
                         zoom={widget.zoom || 100}
+                        isFullscreen={fullscreenWidgetId === widget.widgetId}
                         onRemove={removeWidget}
                         onZoomChange={updateWidgetZoom}
+                        onToggleFullscreen={toggleFullscreen}
                       />
                     );
                   }
