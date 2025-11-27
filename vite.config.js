@@ -6,6 +6,14 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    proxy: {
+      '/naver-api': {
+        target: 'https://openapi.naver.com',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.replace(/^\/naver-api/, ''),
+      },
+    },
   },
   plugins: [react()],
   resolve: {

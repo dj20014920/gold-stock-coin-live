@@ -1,56 +1,48 @@
-import { useState, useEffect } from 'react';
-import { Search, ExternalLink, Loader2 } from 'lucide-react';
+import { useState } from 'react';
+import { Search, ExternalLink, Loader2, AlertCircle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { searchNews } from '@/lib/newsApi';
 
-// API 연동 전 빈 화면 방지를 위한 목 데이터
-const MOCK_NEWS = [
-    {
-        id: 1,
-        title: "애플의 새로운 AI 전략 공개",
-        source: "TechCrunch",
-        date: "2024-03-20",
-        snippet: "애플이 아이폰에 구글의 Gemini AI 엔진을 탑재하기 위해 협상 중인 것으로 알려졌습니다.",
-        url: "https://techcrunch.com"
-    },
-    {
-        id: 2,
-        title: "비트코인, 사상 최고가 돌파",
-        source: "Bloomberg",
-        date: "2024-03-19",
-        snippet: "기관 투자자들의 채택이 증가하면서 암호화폐 시장이 랠리를 펼치고 있습니다.",
-        url: "https://bloomberg.com"
-    },
-    {
-        id: 3,
-        title: "연준 소식에 글로벌 증시 상승",
-        source: "Reuters",
-        date: "2024-03-18",
-        snippet: "최근 연방준비제도 회의록 발표 이후 주요 지수들이 사상 최고치를 기록했습니다.",
-        url: "https://reuters.com"
-    }
+const API_OPTIONS = [
+    { key: 'google', label: 'Google' },
+    { key: 'naver', label: 'Naver' },
 ];
 
 export const NewsPanel = () => {
     const [query, setQuery] = useState('');
-    const [results, setResults] = useState(MOCK_NEWS);
+    const [results, setResults] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [apiType, setApiType] = useState('google'); // 'google' 또는 'naver'
+    const [apiType, setApiType] = useState('google');
+    const [error, setError] = useState('');
+    const [lastQuery, setLastQuery] = useState('');
 
     const handleSearch = async (e) => {
         e.preventDefault();
-        if (!query.trim()) return;
+        const trimmed = query.trim();
+        if (!trimmed) {
+            setError('검색어를 입력해 주세요.');
+            return;
+        }
 
         setIsLoading(true);
-        // TODO: 실제 API 호출 구현
-        // 현재는 검색 지연 시뮬레이션
-        setTimeout(() => {
+        setError('');
+        try {
+            const news = await searchNews(trimmed, apiType);
+            setResults(news);
+            setLastQuery(trimmed);
+            if (news.length === 0) {
+                setError('검색 결과가 없습니다. 다른 키워드로 시도해 보세요.');
+            }
+        } catch (err) {
+            setError(err?.message || '뉴스를 불러오지 못했습니다.');
+        } finally {
             setIsLoading(false);
-            // 실제 앱에서는 여기서 결과를 업데이트
-        }, 1000);
+        }
     };
 
     return (
@@ -66,7 +58,7 @@ export const NewsPanel = () => {
                         <div className="relative flex-1">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                             <Input
-                                placeholder="뉴스 검색..."
+                                placeholder="뉴스 검색... (예: 테슬라 주가, 반도체 전망)"
                                 value={query}
                                 onChange={(e) => setQuery(e.target.value)}
                                 className="pl-9 bg-background/50 border-border/50 focus-visible:ring-1"
@@ -77,50 +69,75 @@ export const NewsPanel = () => {
                         </Button>
                     </form>
                     <div className="flex gap-2 mt-2">
-                        <Badge
-                            variant={apiType === 'google' ? 'default' : 'outline'}
-                            className="cursor-pointer"
-                            onClick={() => setApiType('google')}
-                        >
-                            Google
-                        </Badge>
-                        <Badge
-                            variant={apiType === 'naver' ? 'default' : 'outline'}
-                            className="cursor-pointer"
-                            onClick={() => setApiType('naver')}
-                        >
-                            Naver
-                        </Badge>
+                        {API_OPTIONS.map((option) => (
+                            <Badge
+                                key={option.key}
+                                variant={apiType === option.key ? 'default' : 'outline'}
+                                className="cursor-pointer"
+                                onClick={() => setApiType(option.key)}
+                            >
+                                {option.label}
+                            </Badge>
+                        ))}
                     </div>
                 </CardHeader>
             </Card>
 
+            {error && (
+                <Alert variant="destructive" className="border-border/60 bg-destructive/10">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>문제가 발생했습니다</AlertTitle>
+                    <AlertDescription>{error}</AlertDescription>
+                </Alert>
+            )}
+
             <ScrollArea className="flex-1 -mx-6 px-6">
                 <div className="grid gap-4 pb-6">
+                    {!isLoading && results.length === 0 && !lastQuery && !error && (
+                        <Card className="border-dashed border-border/50 bg-muted/30">
+                            <CardContent className="p-6 text-sm text-muted-foreground">
+                                관심 있는 주식, 섹터, 산업 키워드로 검색해 보세요.
+                            </CardContent>
+                        </Card>
+                    )}
+
                     {results.map((item) => (
                         <Card key={item.id} className="group transition-all hover:bg-accent/50 hover:shadow-md border-border/50">
                             <CardContent className="p-4">
                                 <div className="flex justify-between items-start gap-4">
                                     <div className="space-y-1">
                                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                            <span className="font-medium text-primary">{item.source}</span>
-                                            <span>•</span>
-                                            <span>{item.date}</span>
+                                            <span className="font-medium text-primary">{item.source || 'News'}</span>
+                                            <span className="text-muted-foreground/70">•</span>
+                                            <span>{item.date || '날짜 정보 없음'}</span>
                                         </div>
                                         <h3 className="font-semibold text-lg leading-tight group-hover:text-primary transition-colors">
                                             {item.title}
                                         </h3>
                                         <p className="text-sm text-muted-foreground line-clamp-2">
-                                            {item.snippet}
+                                            {item.snippet || '요약 정보를 불러오지 못했습니다.'}
                                         </p>
                                     </div>
-                                    <Button variant="ghost" size="icon" className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => window.open(item.url, '_blank')}>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                                        onClick={() => item.url && window.open(item.url, '_blank', 'noopener,noreferrer')}
+                                        aria-label="새 창에서 열기"
+                                    >
                                         <ExternalLink className="h-4 w-4" />
                                     </Button>
                                 </div>
                             </CardContent>
                         </Card>
                     ))}
+
+                    {isLoading && (
+                        <div className="flex items-center justify-center py-8 text-muted-foreground gap-2">
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            <span>뉴스를 불러오는 중...</span>
+                        </div>
+                    )}
                 </div>
             </ScrollArea>
         </div>
