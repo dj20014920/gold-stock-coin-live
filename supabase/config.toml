@@ -1,4 +1,0 @@
-project_id = "ywzmalhlestgxngqarul"
-
-[functions.perplexity-chat]
-verify_jwt = false
