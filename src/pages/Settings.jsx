@@ -7,7 +7,7 @@ const Settings = () => {
     const [isDarkMode, setIsDarkMode] = useState(false);
 
     useEffect(() => {
-        // Check initial theme
+        // 초기 테마 확인
         const isDark = document.documentElement.classList.contains('dark');
         setIsDarkMode(isDark);
     }, []);

@@ -37,7 +37,7 @@ export const WebsiteWidget = ({ widgetId, name, url, icon, category, zoom = 100,
   const handleZoomInputChange = (e) => {
     const value = e.target.value;
     setZoomInput(value);
-    // Security: Only allow numeric input
+    // 보안: 숫자 입력만 허용
     const numValue = parseInt(value, 10);
     if (!isNaN(numValue)) {
       onZoomChange(widgetId, numValue);
@@ -48,7 +48,7 @@ export const WebsiteWidget = ({ widgetId, name, url, icon, category, zoom = 100,
     setIframeError(true);
   };
 
-  // Iframe only supports URLs with proper embedding permissions
+  // iframe은 적절한 임베드 권한이 있는 URL만 지원합니다
   if (!url) {
     return null;
   }

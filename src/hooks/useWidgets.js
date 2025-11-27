@@ -42,7 +42,7 @@ export const useWidgets = () => {
         setWidgets((prev) => [...prev, newWidget]);
     };
     const updateWidgetZoom = (widgetId, zoom) => {
-        // Security: Validate and clamp zoom value between 25 and 200
+        // 보안: 줌 값을 25~200 사이로 검증 및 제한
         const sanitizedZoom = Math.max(25, Math.min(200, Math.floor(zoom)));
         setWidgets((prev) => prev.map((w) => (w.widgetId === widgetId ? { ...w, zoom: sanitizedZoom } : w)));
     };

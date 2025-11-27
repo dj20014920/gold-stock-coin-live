@@ -39,7 +39,7 @@ export const TradingViewWidget = memo(({ widgetId, name, symbol, icon, category,
   const handleZoomInputChange = (e) => {
     const value = e.target.value;
     setZoomInput(value);
-    // Security: Only allow numeric input
+    // 보안: 숫자 입력만 허용
     const numValue = parseInt(value, 10);
     if (!isNaN(numValue)) {
       onZoomChange(widgetId, numValue);
@@ -49,9 +49,9 @@ export const TradingViewWidget = memo(({ widgetId, name, symbol, icon, category,
   useEffect(() => {
     if (!containerRef.current)
       return;
-    // Clear previous content
+    // 이전 컨텐츠 제거
     containerRef.current.innerHTML = "";
-    // Create TradingView container
+    // TradingView 컨테이너 생성
     const widgetContainer = document.createElement("div");
     widgetContainer.className = "tradingview-widget-container h-full";
     const chartContainer = document.createElement("div");
@@ -59,7 +59,7 @@ export const TradingViewWidget = memo(({ widgetId, name, symbol, icon, category,
     chartContainer.id = `tradingview_${widgetId}`;
     widgetContainer.appendChild(chartContainer);
     containerRef.current.appendChild(widgetContainer);
-    // Load TradingView script
+    // TradingView 스크립트 로드
     const script = document.createElement("script");
     script.src = "https://s3.tradingview.com/tv.js";
     script.async = true;
@@ -87,7 +87,7 @@ export const TradingViewWidget = memo(({ widgetId, name, symbol, icon, category,
     };
     document.body.appendChild(script);
     return () => {
-      // Cleanup
+      // 정리
       if (script.parentNode) {
         script.parentNode.removeChild(script);
       }
