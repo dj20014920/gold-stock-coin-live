@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, memo } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -22,7 +22,9 @@ const categoryIconBg = {
   custom: "bg-accent/10 text-accent",
 };
 
-export const TradingViewWidget = ({ widgetId, name, symbol, icon, category, zoom = 100, isFullscreen = false, scriptConfig = {}, onRemove, onZoomChange, onToggleFullscreen, }) => {
+const DEFAULT_CONFIG = {};
+
+export const TradingViewWidget = memo(({ widgetId, name, symbol, icon, category, zoom = 100, isFullscreen = false, scriptConfig = DEFAULT_CONFIG, onRemove, onZoomChange, onToggleFullscreen, }) => {
   const containerRef = useRef(null);
   const [zoomInput, setZoomInput] = useState(zoom.toString());
   const IconComponent = LucideIcons[icon] || LucideIcons.Globe;
@@ -126,4 +128,4 @@ export const TradingViewWidget = ({ widgetId, name, symbol, icon, category, zoom
       }} />
     </Card>
   );
-};
+});

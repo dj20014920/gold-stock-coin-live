@@ -38,7 +38,7 @@ const NavItem = ({ icon: Icon, label, active, onClick }) => {
 export const Sidebar = ({ activeTab, onTabChange, onSettingsClick }) => {
     return (
         <aside className="fixed left-0 top-0 z-50 h-screen w-20 border-r border-border/50 bg-background/80 backdrop-blur-xl flex flex-col items-center py-6 gap-6 shadow-sm">
-            {/* Logo / Home Button */}
+            {/* 로고 / 홈 버튼 */}
             <Tooltip delayDuration={0}>
                 <TooltipTrigger asChild>
                     <button
@@ -52,39 +52,37 @@ export const Sidebar = ({ activeTab, onTabChange, onSettingsClick }) => {
                     </button>
                 </TooltipTrigger>
                 <TooltipContent side="right" className="font-medium">
-                    Dashboard
+                    대시보드
                 </TooltipContent>
             </Tooltip>
 
-            {/* Navigation */}
+            {/* 내비게이션 */}
             <div className="flex-1 flex flex-col gap-4 w-full items-center">
-                {/* Dashboard item removed as requested, merged into Logo above */}
-
                 <NavItem
                     icon={MessageSquare}
-                    label="Chat"
+                    label="채팅"
                     active={activeTab === 'chat'}
                     onClick={() => onTabChange('chat')}
                 />
                 <NavItem
                     icon={Newspaper}
-                    label="News"
+                    label="뉴스"
                     active={activeTab === 'news'}
                     onClick={() => onTabChange('news')}
                 />
                 <NavItem
                     icon={StickyNote}
-                    label="Memo"
+                    label="메모"
                     active={activeTab === 'memo'}
                     onClick={() => onTabChange('memo')}
                 />
             </div>
 
-            {/* Footer */}
+            {/* 푸터 */}
             <div className="mt-auto">
                 <NavItem
                     icon={Settings}
-                    label="Settings"
+                    label="설정"
                     active={activeTab === 'settings'}
                     onClick={onSettingsClick}
                 />

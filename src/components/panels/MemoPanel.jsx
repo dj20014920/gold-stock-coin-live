@@ -49,20 +49,20 @@ export const MemoPanel = () => {
         if (activeMemoId === id) {
             setActiveMemoId(newMemos[0].id);
         }
-        toast.success("Memo deleted");
+        toast.success("메모가 삭제되었습니다");
     };
 
     return (
         <div className="h-full flex flex-col p-4 animate-in fade-in duration-500 relative">
-            {/* Header Actions */}
+            {/* 헤더 액션 */}
             <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold tracking-tight">Memos</h2>
+                <h2 className="text-xl font-bold tracking-tight">메모</h2>
                 <Button onClick={handleNew} size="sm" variant="outline" className="gap-2">
-                    <Plus className="h-4 w-4" /> New
+                    <Plus className="h-4 w-4" /> 새 메모
                 </Button>
             </div>
 
-            {/* Content Area */}
+            {/* 컨텐츠 영역 */}
             <div className="flex-1 flex flex-col gap-4 overflow-hidden">
                 <ScrollArea className="flex-1 -mx-2 px-2">
                     <div className="space-y-2 pb-4">
@@ -77,7 +77,7 @@ export const MemoPanel = () => {
                             >
                                 <div className="flex justify-between items-start gap-2">
                                     <p className="text-sm font-medium line-clamp-2 flex-1 break-all">
-                                        {memo.content.trim() || "New Memo"}
+                                        {memo.content.trim() || "새 메모"}
                                     </p>
                                     <Button
                                         variant="ghost"
@@ -89,19 +89,19 @@ export const MemoPanel = () => {
                                     </Button>
                                 </div>
                                 <p className="text-xs text-muted-foreground mt-2">
-                                    {new Date(memo.updatedAt).toLocaleString()}
+                                    {new Date(memo.updatedAt).toLocaleString('ko-KR')}
                                 </p>
                             </Card>
                         ))}
                     </div>
                 </ScrollArea>
 
-                {/* Editor Area (Fixed at bottom) */}
+                {/* 에디터 영역 (하단 고정) */}
                 <div className="h-[50%] flex flex-col bg-card/50 backdrop-blur-sm rounded-xl border border-border/50 shadow-sm overflow-hidden shrink-0">
                     <Textarea
                         value={activeMemo?.content || ''}
                         onChange={(e) => handleUpdate(e.target.value)}
-                        placeholder="Select a memo to edit..."
+                        placeholder="메모를 선택하여 편집하세요..."
                         className="w-full h-full resize-none border-0 p-4 text-base leading-relaxed bg-transparent focus-visible:ring-0"
                     />
                 </div>
