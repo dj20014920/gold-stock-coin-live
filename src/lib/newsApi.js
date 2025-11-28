@@ -95,14 +95,22 @@ const fetchGoogleNews = async (query) => {
   const data = await response.json();
   const items = data.items ?? [];
 
-  return items.map((item, index) => ({
-    id: item.cacheId ? `google-${item.cacheId}` : `google-${index}`,
-    title: stripHtml(item.title),
-    source: item.displayLink || extractHostname(item.link) || 'Google News',
-    date: extractGoogleDate(item),
-    snippet: stripHtml(item.snippet ?? ''),
-    url: item.link,
-  }));
+  return items.map((item, index) => {
+    const image =
+      item.pagemap?.cse_image?.[0]?.src ||
+      item.pagemap?.cse_thumbnail?.[0]?.src ||
+      null;
+
+    return {
+      id: item.cacheId ? `google-${item.cacheId}` : `google-${index}`,
+      title: stripHtml(item.title),
+      source: item.displayLink || extractHostname(item.link) || 'Google News',
+      date: extractGoogleDate(item),
+      snippet: stripHtml(item.snippet ?? ''),
+      url: item.link,
+      image,
+    };
+  });
 };
 
 const fetchNaverNews = async (query) => {

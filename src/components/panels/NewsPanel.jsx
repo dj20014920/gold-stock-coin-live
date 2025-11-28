@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, ExternalLink, Loader2, AlertCircle } from 'lucide-react';
+import { Search, ExternalLink, Loader2, AlertCircle, ChevronDown, ChevronUp, Globe } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -7,6 +7,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { searchNews } from '@/lib/newsApi';
+import { cn } from '@/lib/utils';
 
 const API_OPTIONS = [
     { key: 'google', label: 'Google' },
@@ -20,6 +21,8 @@ export const NewsPanel = () => {
     const [apiType, setApiType] = useState('google');
     const [error, setError] = useState('');
     const [lastQuery, setLastQuery] = useState('');
+    const [expandedId, setExpandedId] = useState(null);
+    const [iframeErrors, setIframeErrors] = useState({});
 
     const handleSearch = async (e) => {
         e.preventDefault();
@@ -31,6 +34,8 @@ export const NewsPanel = () => {
 
         setIsLoading(true);
         setError('');
+        setExpandedId(null);
+        setIframeErrors({});
         try {
             const news = await searchNews(trimmed, apiType);
             setResults(news);
@@ -43,6 +48,14 @@ export const NewsPanel = () => {
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const toggleExpand = (id) => {
+        setExpandedId(prev => prev === id ? null : id);
+    };
+
+    const handleIframeError = (id) => {
+        setIframeErrors(prev => ({ ...prev, [id]: true }));
     };
 
     return (
@@ -101,36 +114,122 @@ export const NewsPanel = () => {
                         </Card>
                     )}
 
-                    {results.map((item) => (
-                        <Card key={item.id} className="group transition-all hover:bg-accent/50 hover:shadow-md border-border/50">
-                            <CardContent className="p-4">
-                                <div className="flex justify-between items-start gap-4">
-                                    <div className="space-y-1">
-                                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                            <span className="font-medium text-primary">{item.source || 'News'}</span>
-                                            <span className="text-muted-foreground/70">•</span>
-                                            <span>{item.date || '날짜 정보 없음'}</span>
+                    {results.map((item) => {
+                        const isExpanded = expandedId === item.id;
+                        const hasIframeError = iframeErrors[item.id];
+
+                        return (
+                            <Card
+                                key={item.id}
+                                className={cn(
+                                    "group transition-all duration-300 border-border/50 cursor-pointer hover:shadow-md overflow-hidden",
+                                    isExpanded ? "ring-1 ring-primary/20 bg-accent/5" : "hover:bg-accent/50"
+                                )}
+                                onClick={() => toggleExpand(item.id)}
+                            >
+                                <CardContent className="p-4">
+                                    <div className="flex justify-between items-start gap-4">
+                                        <div className="space-y-2 flex-1 w-full">
+                                            {/* Header Info */}
+                                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                                <span className="font-medium text-primary">{item.source || 'News'}</span>
+                                                <span className="text-muted-foreground/70">•</span>
+                                                <span>{item.date || '날짜 정보 없음'}</span>
+                                            </div>
+
+                                            <h3 className={cn(
+                                                "font-semibold text-lg leading-tight transition-colors",
+                                                isExpanded ? "text-primary" : "group-hover:text-primary"
+                                            )}>
+                                                {item.title}
+                                            </h3>
+
+                                            {/* Collapsed Snippet */}
+                                            {!isExpanded && (
+                                                <p className="text-sm text-muted-foreground line-clamp-2">
+                                                    {item.snippet || '요약 정보를 불러오지 못했습니다.'}
+                                                </p>
+                                            )}
+
+                                            {/* Expanded Content with Animation */}
+                                            <div
+                                                className={cn(
+                                                    "grid transition-all duration-500 ease-in-out",
+                                                    isExpanded ? "grid-rows-[1fr] opacity-100 mt-4" : "grid-rows-[0fr] opacity-0"
+                                                )}
+                                                onClick={(e) => e.stopPropagation()} // Prevent closing when clicking content
+                                            >
+                                                <div className="overflow-hidden min-h-0">
+                                                    {/* Full Website Iframe */}
+                                                    {isExpanded && (
+                                                        <div className="w-full rounded-xl border border-border/50 bg-background overflow-hidden relative">
+                                                            {!hasIframeError ? (
+                                                                <div className="relative w-full h-[600px]">
+                                                                    <iframe
+                                                                        src={item.url}
+                                                                        className="w-full h-full border-0"
+                                                                        title={item.title}
+                                                                        sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-presentation"
+                                                                        onError={() => handleIframeError(item.id)}
+                                                                    />
+                                                                    {/* Overlay hint */}
+                                                                    <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-background/80 to-transparent p-2 text-xs text-center text-muted-foreground pointer-events-none">
+                                                                        웹사이트 원문 미리보기
+                                                                    </div>
+                                                                </div>
+                                                            ) : (
+                                                                <div className="flex flex-col items-center justify-center h-[300px] bg-muted/20 gap-4 p-6 text-center">
+                                                                    <AlertCircle className="h-8 w-8 text-muted-foreground/50" />
+                                                                    <div className="space-y-1">
+                                                                        <p className="font-medium">웹사이트 연결 거부</p>
+                                                                        <p className="text-sm text-muted-foreground">
+                                                                            이 웹사이트는 보안 정책상 미리보기를 지원하지 않습니다.
+                                                                        </p>
+                                                                    </div>
+                                                                    <Button
+                                                                        variant="outline"
+                                                                        onClick={() => window.open(item.url, '_blank', 'noopener,noreferrer')}
+                                                                    >
+                                                                        <ExternalLink className="h-4 w-4 mr-2" />
+                                                                        새 탭에서 원문 보기
+                                                                    </Button>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    )}
+
+                                                    {/* Fallback / External Link Footer */}
+                                                    {!hasIframeError && (
+                                                        <div className="flex justify-end mt-2">
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                className="text-xs text-muted-foreground hover:text-primary gap-1"
+                                                                onClick={() => window.open(item.url, '_blank', 'noopener,noreferrer')}
+                                                            >
+                                                                <Globe className="h-3 w-3" />
+                                                                브라우저에서 열기
+                                                            </Button>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
                                         </div>
-                                        <h3 className="font-semibold text-lg leading-tight group-hover:text-primary transition-colors">
-                                            {item.title}
-                                        </h3>
-                                        <p className="text-sm text-muted-foreground line-clamp-2">
-                                            {item.snippet || '요약 정보를 불러오지 못했습니다.'}
-                                        </p>
+
+                                        <div className="flex flex-col gap-2 shrink-0">
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="text-muted-foreground"
+                                            >
+                                                {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                                            </Button>
+                                        </div>
                                     </div>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                                        onClick={() => item.url && window.open(item.url, '_blank', 'noopener,noreferrer')}
-                                        aria-label="새 창에서 열기"
-                                    >
-                                        <ExternalLink className="h-4 w-4" />
-                                    </Button>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    ))}
+                                </CardContent>
+                            </Card>
+                        );
+                    })}
 
                     {isLoading && (
                         <div className="flex items-center justify-center py-8 text-muted-foreground gap-2">
