@@ -1,0 +1,29 @@
+{
+    "manifest_version": 3,
+    "name": "Gold Stock Coin Live",
+    "version": "1.0.0",
+    "description": "실시간 금, 주식, 코인 차트 및 AI 채팅",
+    "permissions": [
+        "declarativeNetRequest",
+        "storage"
+    ],
+    "host_permissions": [
+        "https://gemini.google.com/*",
+        "https://tradingview.com/*"
+    ],
+    "declarative_net_request": {
+        "rule_resources": [
+            {
+                "id": "ruleset_1",
+                "enabled": true,
+                "path": "rules.json"
+            }
+        ]
+    },
+    "background": {
+        "service_worker": "background.js"
+    },
+    "content_security_policy": {
+        "extension_pages": "default-src 'self'; frame-src https://gemini.google.com https://tradingview.com https:; script-src 'self' 'unsafe-eval'; object-src 'self'"
+    }
+}
